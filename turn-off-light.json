@@ -1,0 +1,51 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "$designer": {
+    "id": "TwtUm5",
+    "name": "turn_off_light",
+    "comment": ""
+  },
+  "autoEndDialog": true,
+  "defaultResultProperty": "dialog.result",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "$designer": {
+        "name": "BeginDialog",
+        "description": "",
+        "id": "69pis3"
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "$designer": {
+            "id": "70BPBz",
+            "comment": ""
+          },
+          "activity": "${SendActivity_70BPBz()}"
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "c4Wudt"
+          },
+          "resultProperty": "turn.results",
+          "method": "PUT",
+          "url": "https://api.lifx.com/v1/lights/all/state",
+          "body": {
+            "power": "off",
+            "infrared": 1
+          },
+          "headers": {
+            "Authorization": "Bearer ${lifxkey{"
+          }
+        }
+      ],
+      "priority": 0
+    }
+  ],
+  "generator": "turn_off_light.lg",
+  "recognizer": "turn_off_light.lu.qna",
+  "id": "turn_off_light"
+}
+

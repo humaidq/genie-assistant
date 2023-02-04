@@ -1,0 +1,174 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "$designer": {
+    "name": "Menu_Bot",
+    "description": "",
+    "id": "A79tBe"
+  },
+  "autoEndDialog": true,
+  "defaultResultProperty": "dialog.result",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnConversationUpdateActivity",
+      "$designer": {
+        "id": "376720",
+        "comment": "This trigger runs when a conversation update activity is sent to the bot. This indicates a user or bot being added or removed from a conversation."
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.Foreach",
+          "$designer": {
+            "id": "518944",
+            "name": "Loop: for each item",
+            "comment": "For each member added to the conversation."
+          },
+          "itemsProperty": "turn.Activity.membersAdded",
+          "actions": [
+            {
+              "$kind": "Microsoft.IfCondition",
+              "$designer": {
+                "id": "641773",
+                "name": "Branch: if/else",
+                "comment": "Checks that that member added ID does not match the bot ID. This prevents the greeting message from being sent when the bot is added to a conversation."
+              },
+              "condition": "=string(dialog.foreach.value.id) != string(turn.Activity.Recipient.id)",
+              "actions": [
+                {
+                  "$kind": "Microsoft.SendActivity",
+                  "$designer": {
+                    "id": "859266",
+                    "name": "Send a response"
+                  },
+                  "activity": "${SendActivity_Greeting()}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "$kind": "Microsoft.OnUnknownIntent",
+      "$designer": {
+        "id": "mb2n1u",
+        "comment": "This trigger fires when an incoming activity is not handled by any other trigger."
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.SetProperty",
+          "$designer": {
+            "id": "jHhaeJ"
+          },
+          "property": "user.queries",
+          "value": "${user.queries}Human: ${turn.recognized.text}"
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "kq8eu3"
+          },
+          "method": "POST",
+          "contentType": "application/json",
+          "url": "https://api.openai.com/v1/completions",
+          "headers": {
+            "Authorization": "Bearer ${openaikey}",
+            "Content-Type": "application/json"
+          },
+          "resultProperty": "dialog.api_response",
+          "responseType": "json",
+          "body": {
+            "model": "text-davinci-003",
+            "prompt": "The following is a conversation with an AI assistant called Genie. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI bot called Genie. How can I help you today?\n${user.queries}Human: ${turn.recognized.text}\nAI: ",
+            "temperature": 0.9,
+            "max_tokens": 100,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "stop": [
+              " Human:",
+              " AI:"
+            ]
+          }
+        },
+        {
+          "$kind": "Microsoft.IfCondition",
+          "$designer": {
+            "id": "m1istC"
+          },
+          "condition": "=dialog.api_response.StatusCode == 200",
+          "actions": [
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "kE5atT"
+              },
+              "activity": "${SendActivity_kE5atT()}"
+            },
+            {
+              "$kind": "Microsoft.SetProperty",
+              "$designer": {
+                "id": "srpIeR"
+              },
+              "property": "user.queries",
+              "value": "${user.queries} \\nAI: ${dialog.api_response.content.choices[0].text} \\n"
+            }
+          ],
+          "elseActions": [
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "9lDUmj"
+              },
+              "activity": "${SendActivity_9lDUmj()}"
+            }
+          ]
+        }
+      ],
+      "priority": 0
+    },
+    {
+      "$kind": "Microsoft.OnIntent",
+      "$designer": {
+        "id": "Stx6ey",
+        "name": "turnonLight"
+      },
+      "intent": "turnonLight",
+      "actions": [
+        {
+          "$kind": "Microsoft.BeginDialog",
+          "$designer": {
+            "id": "cKmy1Z"
+          },
+          "activityProcessed": true,
+          "dialog": "turn_on_light"
+        }
+      ],
+      "priority": 1,
+      "condition": "=#turnonLight.score >= 0.8"
+    },
+    {
+      "$kind": "Microsoft.OnIntent",
+      "$designer": {
+        "id": "k5lXN2",
+        "name": "turnofflight"
+      },
+      "intent": "turnofflight",
+      "actions": [
+        {
+          "$kind": "Microsoft.BeginDialog",
+          "$designer": {
+            "id": "dr0OO7"
+          },
+          "activityProcessed": true,
+          "dialog": "turn_off_light"
+        }
+      ],
+      "priority": 2,
+      "condition": "=#turnofflight.score >= 0.8"
+    }
+  ],
+  "generator": "Menu_Bot.lg",
+  "id": "Menu_Bot",
+  "recognizer": "Menu_Bot.lu.qna"
+}
+

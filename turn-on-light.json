@@ -1,0 +1,49 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "$designer": {
+    "id": "kVeARm",
+    "name": "turn_on_light",
+    "comment": ""
+  },
+  "autoEndDialog": true,
+  "defaultResultProperty": "dialog.result",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "$designer": {
+        "name": "BeginDialog",
+        "description": "",
+        "id": "ELVfbm"
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "$designer": {
+            "id": "PNwl3m"
+          },
+          "activity": "${SendActivity_PNwl3m()}"
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "tKkg1d"
+          },
+          "resultProperty": "turn.results",
+          "method": "PUT",
+          "url": "https://api.lifx.com/v1/lights/all/state",
+          "body": {
+            "power": "on",
+            "infrared": 1
+          },
+          "headers": {
+            "Authorization": "Bearer ${lifxkey}"
+          }
+        }
+      ],
+      "priority": 0
+    }
+  ],
+  "generator": "turn_on_light.lg",
+  "recognizer": "turn_on_light.lu.qna",
+  "id": "turn_on_light"
+}
